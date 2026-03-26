@@ -12,9 +12,7 @@ services:
       - key: USER_SERVICE_ADDR
         value: users-service-wbz9:8080
       - key: ORDER_SERVICE_ADDR
-        value: orders-service:8080
-      - key: DATABASE_URL
-        sync: false # User will provide this from manual DB
+        value: orders-service-wbz9:8080
 
   # 2. Users Service (Public Web Service - Free Tier)
   - type: web
@@ -27,4 +25,4 @@ services:
       - key: PORT
         value: 8080
       - key: DATABASE_URL
-        sync: false # User will provide this from manual DB
+        sync: false # Puts a prompt in Render to paste the 'External Database URL'
