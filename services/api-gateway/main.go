@@ -378,9 +378,7 @@ func handleGRPCError(w http.ResponseWriter, err error) {
 func main() {
 	// gRPC client for User Service
 	userAddr := os.Getenv("USER_SERVICE_ADDR")
-	if userAddr == "" {
-		userAddr = "users-service:8080"
-	}
+	log.Printf("Connecting to User Service at: %s", userAddr)
 	userConn, err := grpc.Dial(userAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect to user service: %v", err)
