@@ -98,6 +98,7 @@ func main() {
 
 	// Retry logic for database connection (DNS propagation is sometimes slow on Render)
 	var db *sql.DB
+	var err error
 	for i := 0; i < 5; i++ {
 		db, err = sql.Open("postgres", connStr)
 		if err == nil {
