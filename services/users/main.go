@@ -12,6 +12,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"time"
 
 	pb "github.com/tribecart/proto/tribecart/v1"
 )
@@ -95,17 +96,24 @@ func main() {
 			dbHost, dbPort, dbUser, dbPassword, dbName)
 	}
 
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+	// Retry logic for database connection (DNS propagation is sometimes slow on Render)
+	var db *sql.DB
+	for i := 0; i < 5; i++ {
+		db, err = sql.Open("postgres", connStr)
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				log.Println("Successfully connected to database!")
+				break
+			}
+		}
+		log.Printf("Waiting for database... attempt %d/5: %v", i+1, err)
+		time.Sleep(5 * time.Second)
+		if i == 4 {
+			log.Fatalf("failed to connect to database after 5 attempts: %v", err)
+		}
 	}
 	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("failed to ping database: %v", err)
-	}
-	log.Println("Successfully connected to database!")
 
 	// Initialize database schema
 	err = initializeDatabase(db)
