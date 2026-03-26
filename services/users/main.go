@@ -99,7 +99,7 @@ func main() {
 	// Retry logic for database connection (DNS propagation is sometimes slow on Render)
 	var db *sql.DB
 	var err error
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		db, err = sql.Open("postgres", connStr)
 		if err == nil {
 			err = db.Ping()
@@ -108,10 +108,10 @@ func main() {
 				break
 			}
 		}
-		log.Printf("Waiting for database... attempt %d/5: %v", i+1, err)
-		time.Sleep(5 * time.Second)
-		if i == 4 {
-			log.Fatalf("failed to connect to database after 5 attempts: %v", err)
+		log.Printf("Waiting for database... attempt %d/10: %v", i+1, err)
+		time.Sleep(10 * time.Second)
+		if i == 9 {
+			log.Fatalf("failed to connect to database after 10 attempts: %v", err)
 		}
 	}
 	defer db.Close()
