@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  products-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: products-service
+    ports:
+      - "50051:50051"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=tribecart_products
+      - DB_SSLMODE=disable
+      - GRPC_PORT=50051
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50051"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: products-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tribecart_products
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:7.1
+    container_name: products-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@tribecart.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # For development - automatically run migrations
+  migrate:
+    image: migrate/migrate
+    container_name: products-migrate
+    command: ["-path", "/migrations", "-database", "postgres://postgres:postgres@postgres:5432/tribecart_products?sslmode=disable", "up"]
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      - postgres
+    restart: on-failure
+
+volumes:
+  postgres_data:

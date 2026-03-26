@@ -1,0 +1,113 @@
+{
+  "mcpServers": {
+    // ============================================
+    // FILESYSTEM ACCESS - Read/write local files
+    // ============================================
+    // "filesystem": {
+    //   "command": "npx",
+    //   "args": [
+    //     "-y",
+    //     "@modelcontextprotocol/server-filesystem",
+    //     // Specify allowed directories (IMPORTANT: only add trusted paths)
+    //     "/home/username/projects",
+    //     "/home/username/documents"
+    //   ]
+    //   // Security: Only grants access to specified directories
+    //   // Use case: Let AI read/write files in your projects
+    // },
+
+    // ============================================
+    // MEMORY - Persistent knowledge across sessions
+    // ============================================
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+      // Stores: user preferences, facts, project context
+      // Persists: across chat sessions
+      // Location: ~/.mcp-server-memory/
+    },
+
+
+
+    // ============================================
+    // PUPPETEER - Browser automation
+    // ============================================
+    // "puppeteer": {
+    //   "command": "npx",
+    //   "args": [
+    //     "-y",
+    //     "@modelcontextprotocol/server-puppeteer"
+    //   ]
+    // // Features: screenshots, PDF generation, web scraping
+    // // Use case: Automated browser interactions
+    // // Warning: Resource intensive
+    // },
+
+
+
+    // ============================================
+    // SENTRY - Error tracking
+    // ============================================
+    // "sentry": {
+    //   "command": "npx",
+    //   "args": [
+    //     "-y",
+    //     "@modelcontextprotocol/server-sentry"
+    //   ],
+    //   "env": {
+    //     // Get from: https://sentry.io/settings/account/api/auth-tokens/
+    //     "SENTRY_AUTH_TOKEN": "your_sentry_auth_token",
+    //     "SENTRY_ORG": "your-org-name"
+    //   }
+    //   // Features: view errors, analyze issues, create alerts
+    //   // Use case: Debug production errors with AI
+    // },
+
+    // ============================================
+    // SEQUENTIAL THINKING - Enhanced reasoning
+    // ============================================
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+      // Features: step-by-step reasoning, problem decomposition
+      // Use case: Complex problem-solving tasks
+      // Note: Improves AI reasoning quality
+    }
+}
+}
+// ============================================
+// INSTALLATION TIPS
+// ============================================
+// 1. Global install (recommended):
+//    npm install -g @modelcontextprotocol/server-name
+//    Then use: "command": "mcp-server-name"
+//
+// 2. Replace 'username' with your actual username
+//
+// 3. Never commit API keys! Use environment variables:
+//    "env": {"KEY": "${ENV_VAR_NAME}"}
+//
+// 4. Start with: filesystem, memory, fetch
+//    Then add others as needed
+//
+// 5. Check logs if server fails:
+//    Check MCP client logs for error details
+//
+// 6. Test individual servers:
+//    npx @modelcontextprotocol/server-name --help
+
+// ============================================
+// SECURITY BEST PRACTICES
+// ============================================
+// - Filesystem: Only whitelist necessary directories
+// - GitHub: Use tokens with minimal required scopes
+// - Postgres: Create read-only user for queries
+// - APIs: Use environment variables, never hardcode keys
+// - Git: Consider read-only mode for safety
+// - Docker: Limit to inspection, not modification

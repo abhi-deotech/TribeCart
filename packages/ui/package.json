@@ -1,0 +1,63 @@
+{
+  "name": "@repo/ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./button": {
+      "import": "./dist/button.js",
+      "require": "./dist/button.js",
+      "types": "./dist/button.d.ts"
+    },
+    "./input": {
+      "import": "./dist/input.js",
+      "require": "./dist/input.js",
+      "types": "./dist/input.d.ts"
+    },
+    "./label": {
+      "import": "./dist/label.js",
+      "require": "./dist/label.js",
+      "types": "./dist/label.d.ts"
+    },
+    "./card": {
+      "import": "./dist/card.js",
+      "require": "./dist/card.js",
+      "types": "./dist/card.d.ts"
+    },
+    "./lib/utils": {
+      "import": "./dist/lib/utils.js",
+      "require": "./dist/lib/utils.js",
+      "types": "./dist/lib/utils.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slot": "^1.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.3",
+    "tailwindcss": "^3.0.0"
+  }
+}

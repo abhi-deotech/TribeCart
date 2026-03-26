@@ -1,0 +1,20 @@
+{
+  "name": "tribecart-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "generate:proto-ts": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=grpc_js:./packages/api-types/tribecart/v1 --proto_path=./proto ./proto/tribecart/v1/*.proto"
+  },
+  "devDependencies": {
+    "grpc-web": "^1.5.0",
+    "prettier": "^3.2.5",
+    "ts-protoc-gen": "^0.15.0",
+    "turbo": "^2.0.4",
+    "grpc-tools": "^1.12.4"
+  },
+  "packageManager": "pnpm@9.4.0"
+}

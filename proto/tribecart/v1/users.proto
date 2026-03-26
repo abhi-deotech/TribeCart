@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package tribecart.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/tribecart/proto/tribecart/v1;v1";
+
+// UserRole defines the role of a user in the system
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_CUSTOMER = 1;
+  USER_ROLE_SELLER = 2;
+  USER_ROLE_ADMIN = 3;
+  USER_ROLE_SUPER_ADMIN = 4;
+}
+
+// UserStatus defines the status of a user account
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_PENDING = 2;
+  USER_STATUS_SUSPENDED = 3;
+  USER_STATUS_DELETED = 4;
+}
+
+// User represents a user in the system
+message User {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string phone_number = 5;
+  UserRole role = 6;
+  UserStatus status = 7;
+  bool email_verified = 8;
+  bool phone_verified = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  google.protobuf.Timestamp last_login_at = 12;
+  repeated Address addresses = 13;
+  map<string, string> metadata = 14;
+}
+
+// Address represents a user's address
+message Address {
+  string id = 1;
+  string user_id = 2;
+  string label = 3;  // e.g., "Home", "Work"
+  string line1 = 4;
+  string line2 = 5;
+  string city = 6;
+  string state = 7;
+  string postal_code = 8;
+  string country = 9;
+  bool is_default = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// Authentication related messages
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  User user = 3;
+  google.protobuf.Timestamp expires_at = 4;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message ForgotPasswordRequest {
+  string email = 1;
+}
+
+message ResetPasswordRequest {
+  string token = 1;
+  string new_password = 2;
+}
+
+// User management messages
+message CreateUserRequest {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  string password = 4;
+  string phone_number = 5;
+  UserRole role = 6;
+  map<string, string> metadata = 7;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  optional string first_name = 2;
+  optional string last_name = 3;
+  optional string phone_number = 4;
+  optional UserStatus status = 5;
+  map<string, string> metadata = 6;
+}
+
+message ChangePasswordRequest {
+  string user_id = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message ListUsersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string filter = 3;
+  string order_by = 4;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// UserService defines the user management and authentication service
+service UserService {
+  // Authentication
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty);
+  
+  // User Management
+  rpc CreateUser(CreateUserRequest) returns (User);
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  
+  // Password Management
+  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty);
+  rpc ForgotPassword(ForgotPasswordRequest) returns (google.protobuf.Empty);
+  rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty);
+  
+  // Email Verification
+  rpc SendVerificationEmail(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc VerifyEmail(VerifyEmailRequest) returns (google.protobuf.Empty);
+}
+
+message VerifyEmailRequest {
+  string token = 1;
+}

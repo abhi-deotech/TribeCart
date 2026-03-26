@@ -1,0 +1,58 @@
+services:
+  # 1. API Gateway (Public Web Service)
+  - type: web
+    name: api-gateway
+    runtime: go
+    buildCommand: go build -o api-gateway ./services/api-gateway
+    startCommand: ./api-gateway
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: USER_SERVICE_ADDR
+        value: users-service:8080
+      - key: ORDER_SERVICE_ADDR
+        value: orders-service:8080
+    # Auto-scaling (optional for MVP but good for PRD)
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetCPUUtilization: 60
+    
+  # 2. Users Service (Private Service)
+  - type: pserv
+    name: users-service
+    runtime: go
+    buildCommand: go build -o users-service ./services/users
+    startCommand: ./users-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: tribecart-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: tribecart-db
+          property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: tribecart-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: tribecart-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: tribecart-db
+          property: database
+    scaling:
+      minInstances: 1
+      maxInstances: 2
+
+databases:
+  - name: tribecart-db
+    databaseName: tribecart
+    user: tribecart_user
+    plan: free
+
+# Note: Redis and more services can be added as we scale Phase 1.

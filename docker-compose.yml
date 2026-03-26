@@ -1,0 +1,162 @@
+version: '3.8'
+
+networks:
+  tribecart-network:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tribecart-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./services/api-gateway/Dockerfile
+    ports:
+      - '8000:8000'
+    networks:
+      - tribecart-network
+    depends_on:
+      - users-service
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  users-service:
+    build:
+      context: .
+      dockerfile: ./services/users/Dockerfile
+    ports:
+      - '8081:8080' # Exposing on 8081 to avoid conflict with other services
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - tribecart-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  products:
+    build:
+      context: .
+      dockerfile: ./services/products/Dockerfile
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  orders-service:
+    build:
+      context: .
+      dockerfile: ./services/orders/Dockerfile
+    ports:
+      - '8083:8080'  # Exposing on 8083 to avoid conflict with other services
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-tribecart_orders}
+      - DB_SSLMODE=disable
+    networks:
+      - tribecart-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8083/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payments-service:
+    build:
+      context: .
+      dockerfile: ./services/payments/Dockerfile
+    ports:
+      - '8084:8080' # Exposing on 8084 to avoid conflict with other services
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - tribecart-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: ./apps/admin-web/Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - HOSTNAME=0.0.0.0
+    networks:
+      - tribecart-network
+    depends_on:
+      - api-gateway
+
+  seller-web:
+    build:
+      context: .
+      dockerfile: ./apps/seller-web/Dockerfile
+    ports:
+      - '3001:3000' # Use a different port to avoid conflict with admin-web
+    environment:
+      - HOSTNAME=0.0.0.0
+      # Assuming API Gateway is accessible at http://api-gateway:8000 within the Docker network
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://api-gateway:8000
+    networks:
+      - tribecart-network
+    depends_on:
+      - api-gateway
+
+  customer-web:
+    build:
+      context: .
+      dockerfile: ./apps/customer-web/Dockerfile
+    ports:
+      - '3002:3000' # Use a different port to avoid conflict with admin-web and seller-web
+    environment:
+      - HOSTNAME=0.0.0.0
+      # Assuming API Gateway is accessible at http://api-gateway:8000 within the Docker network
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://api-gateway:8000
+    networks:
+      - tribecart-network
+    depends_on:
+      - api-gateway
+
+volumes:
+  postgres_data:

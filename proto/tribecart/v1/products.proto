@@ -1,0 +1,450 @@
+syntax = "proto3";
+
+package tribecart.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "github.com/tribecart/proto/tribecart/v1;v1";
+
+// Product status enumeration
+enum ProductStatus {
+  PRODUCT_STATUS_UNSPECIFIED = 0;
+  PRODUCT_STATUS_DRAFT = 1;
+  PRODUCT_STATUS_ACTIVE = 2;
+  PRODUCT_STATUS_ARCHIVED = 3;
+  PRODUCT_STATUS_OUT_OF_STOCK = 4;
+  PRODUCT_STATUS_DISCONTINUED = 5;
+}
+
+// Product type enumeration
+enum ProductType {
+  PRODUCT_TYPE_UNSPECIFIED = 0;
+  PRODUCT_TYPE_PHYSICAL = 1;
+  PRODUCT_TYPE_DIGITAL = 2;
+  PRODUCT_TYPE_SERVICE = 3;
+}
+
+// Product represents a product in the system
+message Product {
+  // Unique identifier for the product
+  string id = 1;
+  // Seller ID who owns this product
+  string seller_id = 2;
+  // Product name
+  string name = 3;
+  // Product description (can include HTML)
+  string description = 4;
+  // Product SKU (Stock Keeping Unit)
+  string sku = 5;
+  // Product barcode (UPC, EAN, etc.)
+  string barcode = 6;
+  // Base price of the product
+  double price = 7;
+  // Sale price of the product (if on sale)
+  double sale_price = 8;
+  // Cost price of the product
+  double cost_price = 9;
+  // Current stock quantity
+  int32 stock_quantity = 10;
+  // Whether to track inventory for this product
+  bool track_inventory = 11;
+  // Minimum stock level before restock notification
+  int32 min_stock_level = 12;
+  // Product weight in grams
+  double weight = 13;
+  // Product length in centimeters
+  double length = 14;
+  // Product width in centimeters
+  double width = 15;
+  // Product height in centimeters
+  double height = 16;
+  // Product type (physical, digital, service)
+  ProductType type = 17;
+  // Product status
+  ProductStatus status = 18;
+  // Whether the product is featured
+  bool is_featured = 19;
+  // Whether the product is visible in the store
+  bool is_visible = 20;
+  // Whether the product requires shipping
+  bool requires_shipping = 21;
+  // Whether the product is taxable
+  bool is_taxable = 22;
+  // Tax class ID
+  string tax_class_id = 23;
+  // Product categories (comma-separated IDs)
+  repeated string category_ids = 24;
+  // Product tags
+  repeated string tags = 25;
+  // Product images (URLs or paths)
+  repeated string images = 26;
+  // Product specifications (key-value pairs)
+  map<string, string> specifications = 27;
+  // SEO title
+  string seo_title = 28;
+  // SEO description
+  string seo_description = 29;
+  // SEO keywords
+  string seo_keywords = 30;
+  // Created timestamp
+  google.protobuf.Timestamp created_at = 31;
+  // Updated timestamp
+  google.protobuf.Timestamp updated_at = 32;
+  // Deleted timestamp (for soft delete)
+  google.protobuf.Timestamp deleted_at = 33;
+  // Additional metadata
+  map<string, string> metadata = 34;
+  // Product variants (for variable products)
+  repeated ProductVariant variants = 35;
+}
+
+// ProductVariant represents a variant of a product
+message ProductVariant {
+  // Unique identifier for the variant
+  string id = 1;
+  // Parent product ID
+  string product_id = 2;
+  // Variant SKU
+  string sku = 3;
+  // Variant barcode
+  string barcode = 4;
+  // Price adjustment (can be positive or negative)
+  double price_adjustment = 5;
+  // Current stock quantity
+  int32 stock_quantity = 6;
+  // Variant attributes (e.g., size: XL, color: Red)
+  map<string, string> attributes = 7;
+  // Additional images specific to this variant
+  repeated string images = 8;
+  // Created timestamp
+  google.protobuf.Timestamp created_at = 9;
+  // Updated timestamp
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+// ProductService defines the product management service
+service ProductService {
+  // Create a new product
+  rpc CreateProduct(CreateProductRequest) returns (Product);
+  
+  // Get a product by ID
+  rpc GetProduct(GetProductRequest) returns (Product);
+  
+  // Update an existing product
+  rpc UpdateProduct(UpdateProductRequest) returns (Product);
+  
+  // Delete a product
+  rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty);
+  
+  // List products with filtering and pagination
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  
+  // Update product stock
+  rpc UpdateStock(UpdateStockRequest) returns (Product);
+  
+  // Search products
+  rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse);
+  
+  // Get products by category
+  rpc GetProductsByCategory(GetProductsByCategoryRequest) returns (ListProductsResponse);
+  
+  // Bulk import products
+  rpc BulkImportProducts(BulkImportProductsRequest) returns (BulkImportProductsResponse);
+  
+  // Bulk export products
+  rpc BulkExportProducts(BulkExportProductsRequest) returns (BulkExportProductsResponse);
+}
+
+// Request to create a new product
+message CreateProductRequest {
+  // Required fields
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 stock_quantity = 4;
+  
+  // Optional fields
+  string seller_id = 5;
+  string sku = 6;
+  string barcode = 7;
+  double sale_price = 8;
+  double cost_price = 9;
+  bool track_inventory = 10;
+  int32 min_stock_level = 11;
+  double weight = 12;
+  double length = 13;
+  double width = 14;
+  double height = 15;
+  ProductType type = 16;
+  ProductStatus status = 17;
+  bool is_featured = 18;
+  bool is_visible = 19;
+  bool requires_shipping = 20;
+  bool is_taxable = 21;
+  string tax_class_id = 22;
+  repeated string category_ids = 23;
+  repeated string tags = 24;
+  repeated string images = 25;
+  map<string, string> specifications = 26;
+  string seo_title = 27;
+  string seo_description = 28;
+  string seo_keywords = 29;
+  repeated ProductVariant variants = 30;
+  map<string, string> metadata = 31;
+}
+
+// Request to get a product
+message GetProductRequest {
+  // Product ID
+  string id = 1;
+  // Whether to include variants in the response
+  bool include_variants = 2;
+  // Whether to include deleted products
+  bool include_deleted = 3;
+}
+
+// Request to update a product
+message UpdateProductRequest {
+  // Required fields
+  string id = 1;
+  
+  // Update mask to specify which fields to update
+  google.protobuf.FieldMask update_mask = 2;
+  
+  // Fields that can be updated
+  string name = 3;
+  string description = 4;
+  double price = 5;
+  int32 stock_quantity = 6;
+  string sku = 7;
+  string barcode = 8;
+  double sale_price = 9;
+  double cost_price = 10;
+  bool track_inventory = 11;
+  int32 min_stock_level = 12;
+  double weight = 13;
+  double length = 14;
+  double width = 15;
+  double height = 16;
+  ProductType type = 17;
+  ProductStatus status = 18;
+  bool is_featured = 19;
+  bool is_visible = 20;
+  bool requires_shipping = 21;
+  bool is_taxable = 22;
+  string tax_class_id = 23;
+  repeated string category_ids = 24;
+  repeated string tags = 25;
+  repeated string images = 26;
+  map<string, string> specifications = 27;
+  string seo_title = 28;
+  string seo_description = 29;
+  string seo_keywords = 30;
+  repeated ProductVariant variants = 31;
+  map<string, string> metadata = 32;
+}
+
+// Request to delete a product
+message DeleteProductRequest {
+  // Product ID
+  string id = 1;
+  // Whether to perform a hard delete (permanent)
+  bool force = 2;
+}
+
+// Request to list products with filtering and pagination
+message ListProductsRequest {
+  // Pagination
+  int32 page = 1;
+  int32 page_size = 2;
+  
+  // Filtering
+  string seller_id = 3;
+  repeated string category_ids = 4;
+  double min_price = 5;
+  double max_price = 6;
+  ProductStatus status = 7;
+  bool in_stock = 8;
+  bool featured = 9;
+  string search_query = 10;
+  
+  // Sorting
+  string sort_by = 11;  // e.g., "price", "-price", "name", "-name"
+  
+  // Whether to include deleted products
+  bool include_deleted = 12;
+}
+
+// Response containing a list of products
+message ListProductsResponse {
+  repeated Product products = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// Request to update product stock
+message UpdateStockRequest {
+  // Product ID
+  string product_id = 1;
+  // Variant ID (for variable products)
+  string variant_id = 2;
+  // Quantity to add (positive) or remove (negative)
+  int32 quantity = 3;
+  // Reason for stock update (e.g., "sale", "restock", "adjustment")
+  string reason = 4;
+  // Optional reference ID (e.g., order ID for sales)
+  string reference_id = 5;
+}
+
+// Request to search products
+message SearchProductsRequest {
+  // Search query
+  string query = 1;
+  // Pagination
+  int32 page = 2;
+  int32 page_size = 3;
+  // Filtering
+  repeated string category_ids = 4;
+  double min_price = 5;
+  double max_price = 6;
+  // Whether to include product variants in search
+  bool include_variants = 7;
+  // Whether to include out of stock products
+  bool include_out_of_stock = 8;
+}
+
+// Response containing search results
+message SearchProductsResponse {
+  repeated Product products = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  // Aggregations/facets for search results
+  map<string, SearchAggregation> aggregations = 5;
+}
+
+// Search aggregation/facet information
+message SearchAggregation {
+  // Aggregation buckets
+  repeated AggregationBucket buckets = 1;
+  // Total number of unique values
+  int32 total = 2;
+}
+
+// Aggregation bucket for search facets
+message AggregationBucket {
+  // Bucket key (e.g., category ID, price range)
+  string key = 1;
+  // Number of documents in this bucket
+  int32 doc_count = 2;
+  // Optional display name
+  string label = 3;
+  // Optional min value (for numeric ranges)
+  double min = 4;
+  // Optional max value (for numeric ranges)
+  double max = 5;
+}
+
+// Request to get products by category
+message GetProductsByCategoryRequest {
+  // Category ID
+  string category_id = 1;
+  // Whether to include subcategories
+  bool include_subcategories = 2;
+  // Pagination
+  int32 page = 3;
+  int32 page_size = 4;
+  // Sorting
+  string sort_by = 5;
+}
+
+// Request to bulk import products
+message BulkImportProductsRequest {
+  // Import format (e.g., "json", "csv")
+  string format = 1;
+  // Base64-encoded file content
+  bytes file_content = 2;
+  // Import options
+  ImportOptions options = 3;
+  // Callback URL for import completion notification
+  string callback_url = 4;
+}
+
+// Import options for bulk operations
+message ImportOptions {
+  // Whether to update existing products
+  bool update_existing = 1;
+  // Whether to create new products if they don't exist
+  bool create_new = 2;
+  // Whether to delete products not in the import file
+  bool delete_missing = 3;
+  // Field mappings (for CSV)
+  map<string, string> field_mappings = 4;
+  // Default values for fields not in import
+  map<string, string> default_values = 5;
+}
+
+// Response for bulk import
+message BulkImportProductsResponse {
+  // Import job ID
+  string job_id = 1;
+  // Total number of records processed
+  int32 total_records = 2;
+  // Number of successful imports
+  int32 success_count = 3;
+  // Number of failed imports
+  int32 error_count = 4;
+  // Error details (if any)
+  repeated ImportError errors = 5;
+  // Import status
+  string status = 6;
+  // Timestamp when import started
+  google.protobuf.Timestamp started_at = 7;
+  // Timestamp when import completed
+  google.protobuf.Timestamp completed_at = 8;
+}
+
+// Import error details
+message ImportError {
+  // Row/record number
+  int32 row = 1;
+  // Field with error
+  string field = 2;
+  // Error message
+  string message = 3;
+  // Error code
+  string code = 4;
+  // Raw data that caused the error
+  string raw_data = 5;
+}
+
+// Request to bulk export products
+message BulkExportProductsRequest {
+  // Export format (e.g., "json", "csv")
+  string format = 1;
+  // Filter criteria
+  ListProductsRequest filter = 2;
+  // Fields to include in export
+  repeated string fields = 3;
+  // Callback URL for export completion notification
+  string callback_url = 4;
+}
+
+// Response for bulk export
+message BulkExportProductsResponse {
+  // Export job ID
+  string job_id = 1;
+  // URL to download the exported file (when complete)
+  string download_url = 2;
+  // Export status
+  string status = 3;
+  // Number of records exported
+  int32 record_count = 4;
+  // Timestamp when export started
+  google.protobuf.Timestamp started_at = 5;
+  // Timestamp when export completed
+  google.protobuf.Timestamp completed_at = 6;
+}

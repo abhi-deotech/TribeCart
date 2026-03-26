@@ -1,0 +1,14 @@
+{
+  "extends": "../../packages/tsconfig/nextjs/base.json",
+  "compilerOptions": {
+    "plugins": [{"name": "next"}],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@repo/ui": ["../../packages/ui/src/index.ts"],
+      "@repo/ui/*": ["../../packages/ui/src/*"]
+    },
+    "moduleResolution": "bundler"
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

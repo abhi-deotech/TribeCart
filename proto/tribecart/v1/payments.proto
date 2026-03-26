@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package tribecart.v1;
+
+option go_package = "github.com/tribecart/proto/tribecart/v1;v1";
+
+service PaymentService {
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
+}
+
+message ProcessPaymentRequest {
+  string order_id = 1;
+  double amount = 2;
+}
+
+message ProcessPaymentResponse {
+  string transaction_id = 1;
+  bool success = 2;
+}

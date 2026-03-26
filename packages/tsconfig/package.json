@@ -1,0 +1,14 @@
+{
+  "name": "@tribecart/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "nextjs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
