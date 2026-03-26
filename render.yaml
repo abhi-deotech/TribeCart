@@ -10,7 +10,7 @@ services:
       - key: PORT
         value: 8000
       - key: USER_SERVICE_ADDR
-        value: users-service:8080
+        value: users-service-wbz9:8080
       - key: ORDER_SERVICE_ADDR
         value: orders-service:8080
       - key: DATABASE_URL
